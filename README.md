@@ -1,7 +1,7 @@
 ex1
 ===
 
-##Links#
+#Links#
 Sample Spring Cloud App
 https://github.com/spring-cloud-samples/springbox-cloud
 
