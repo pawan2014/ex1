@@ -1,0 +1,5 @@
+package testme
+
+func Hello() {
+
+}
