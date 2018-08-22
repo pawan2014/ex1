@@ -38,10 +38,10 @@ func (r *RabbitConfig) Configure() {
 	// PUBLISH
 }
 
-func Publish(msg string) {
-	rabbit.Publish(msg)
+func Publish(msg string) error {
+	return rabbit.Publish(msg)
 }
-func (r *RabbitConfig) Publish(msg string) {
+func (r *RabbitConfig) Publish(msg string) error {
 	err := r.mychannel.Publish(
 		"",             // exchange
 		r.myqueue.Name, // routing key
@@ -53,8 +53,9 @@ func (r *RabbitConfig) Publish(msg string) {
 			Body:         []byte(msg),
 		})
 	if err != nil {
-		log.Fatalf("%s: %s", "Error while sending message", err)
+		log.Printf("%s: %s", "Message Queue Error :", err)
 	}
+	return err
 }
 func NewRabbitConfig(conn *amqp.Connection) *RabbitConfig {
 	rabbit = RabbitConfig{mydb: conn}

@@ -4,8 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/ex1/streamer/inject"
 	"github.com/ex1/streamer/service"
-	"github.com/ex1/streamer/streamer"
 	"github.com/labstack/echo"
 )
 
@@ -52,7 +52,7 @@ func (h *Handler) UpdateTagUnderMachine(c echo.Context) (err error) {
 func (h *Handler) StartMachineStream(c echo.Context) (err error) {
 	machineId := c.Param("id")
 	myMachine := s().GetMachine(machineId)
-	streamer.StreamMachine(myMachine)
+	inject.StreamMachine(myMachine)
 	return nil
 }
 
@@ -60,7 +60,7 @@ func (h *Handler) StartMachineStream(c echo.Context) (err error) {
 func (h *Handler) StopMachineStream(c echo.Context) (err error) {
 	machineId := c.Param("id")
 	log.Printf("Called stop stream for machine %v", machineId)
-	streamer.StopStreaming(machineId)
+	inject.StopStreaming(machineId)
 	return nil
 }
 

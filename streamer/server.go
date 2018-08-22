@@ -1,12 +1,17 @@
 package main
 
 import (
+	"context"
 	"database/sql"
 	"net/http"
+	"os"
+	"os/signal"
+	"time"
 
 	"github.com/ex1/streamer/config"
 	"github.com/ex1/streamer/dao"
 	"github.com/ex1/streamer/handler"
+	"github.com/ex1/streamer/inject"
 	"github.com/ex1/streamer/service"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -63,6 +68,29 @@ func main() {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
 
+	// Start server
+	go func() {
+		if err := e.Start(":8080"); err != nil {
+			e.Logger.Info("shutting down the server")
+		}
+	}()
+
 	// Start Server
-	e.Logger.Fatal(e.Start(":8080"))
+	//e.Logger.Fatal(e.Start(":8080"))
+	// GraceFul stop
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	<-quit
+	// clean all the go routines
+	go func() {
+		inject.CleanAllChannels()
+	}()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err := e.Shutdown(ctx); err != nil {
+		e.Logger.Fatal(err)
+	}
+	time.Sleep(10 * time.Second)
+	log.Print("Server Stopped")
 }
