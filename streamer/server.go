@@ -2,9 +2,9 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"net/http"
 
+	"github.com/ex1/streamer/config"
 	"github.com/ex1/streamer/dao"
 	"github.com/ex1/streamer/handler"
 	"github.com/ex1/streamer/service"
@@ -12,6 +12,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 	_ "github.com/lib/pq"
+	"github.com/streadway/amqp"
 )
 
 //var Myservice *service.Service
@@ -27,7 +28,14 @@ func main() {
 
 	dao := dao.NewPgDao(db)
 	service.NewService(dao)
-	fmt.Print(dao)
+
+	// MQ Connection
+	rabbitconn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
+	defer rabbitconn.Close()
+	if err != nil {
+		panic(err)
+	}
+	config.NewRabbitConfig(rabbitconn).Configure()
 
 	// Server
 	e := echo.New()

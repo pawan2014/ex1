@@ -11,6 +11,7 @@ import (
 type Dao interface {
 	Hi() string
 	GetMachinesAndTags() []model.Machine
+	GetMachine(id string) model.Machine
 }
 
 // PgDao for attaching all the Dao methods applicable for postgres
@@ -48,6 +49,25 @@ func (p PgDao) GetMachinesAndTags() []model.Machine {
 		mach.Tags = tagesTempData
 		mydata = append(mydata, mach)
 	}
+	return mydata
+}
+func (p PgDao) GetMachine(id string) model.Machine {
+	var mydata model.Machine
+	myTagRows, _ := p.mydb.Query(`SELECT tagid, tagtype, tagname, formula, 
+			frequency FROM public.machinetags  where machineid=$1`, id)
+	var tagesTempData []model.Tag
+	for myTagRows.Next() {
+		tag := model.Tag{}
+		err := myTagRows.Scan(&tag.TagID, &tag.TagType, &tag.TagName, &tag.Formula, &tag.Frequency)
+		if err != nil {
+			log.Fatal(err)
+		}
+		tagesTempData = append(tagesTempData, tag)
+	}
+
+	mydata.Tags = tagesTempData
+	mydata.Machineid = id
+
 	return mydata
 }
 

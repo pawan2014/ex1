@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/ex1/streamer/service"
+	"github.com/ex1/streamer/streamer"
 	"github.com/labstack/echo"
 )
 
@@ -29,12 +31,16 @@ func (h *Handler) GetMachines(c echo.Context) (err error) {
 
 // Machine add one machine with Tags
 func (h *Handler) AddMachineWithTags(c echo.Context) (err error) {
-	return nil
+	return c.String(http.StatusBadRequest, "Not Implemented")
 }
 
 // Get one machine with tags /machine/tags
 func (h *Handler) GetMachineWithTags(c echo.Context) (err error) {
-	return nil
+	machineId := c.Param("id")
+	if len(machineId) == 0 {
+		return c.String(http.StatusBadRequest, "machine id canot be empty")
+	}
+	return c.JSON(http.StatusOK, s().GetMachine(machineId))
 }
 
 // /machine/{id}/tag POST & PUT
@@ -44,11 +50,17 @@ func (h *Handler) UpdateTagUnderMachine(c echo.Context) (err error) {
 
 // /machine/{}/start
 func (h *Handler) StartMachineStream(c echo.Context) (err error) {
+	machineId := c.Param("id")
+	myMachine := s().GetMachine(machineId)
+	streamer.StreamMachine(myMachine)
 	return nil
 }
 
 // /machine/{}/stop
 func (h *Handler) StopMachineStream(c echo.Context) (err error) {
+	machineId := c.Param("id")
+	log.Printf("Called stop stream for machine %v", machineId)
+	streamer.StopStreaming(machineId)
 	return nil
 }
 

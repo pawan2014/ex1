@@ -37,3 +37,23 @@ func TestGetAllMachinesTags(t *testing.T) {
 		}
 	}
 }
+func TestGetMachine(t *testing.T) {
+	connStr := "user=postgres password=admin dbname=postgres sslmode=disable"
+	db, err := sql.Open("postgres", connStr)
+	defer db.Close()
+	if err != nil {
+		panic(err)
+	}
+	err1 := db.Ping()
+	if err1 != nil {
+		//do something here
+	}
+	mydao := NewPgDao(db)
+	machine := mydao.GetMachine("1")
+
+	fmt.Println(machine.Machineid)
+	for _, k := range machine.Tags {
+		fmt.Println("\t", k.TagID)
+	}
+
+}
